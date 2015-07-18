@@ -35,7 +35,7 @@ docker_init(){
     else
     	echo "$CYAN Launch Docker service$NC";
     	sudo systemctl start docker;
-    	echo "$CYAN Pull container image hybridapp from dockerhub$NC";
+    	echo "$CYAN Build container image hybridapp from dockerhub$NC";
     	docker build avallete/hybridapp ./
     fi
 }
@@ -71,7 +71,7 @@ hybridapp_create(){
 hybridapp_dev(){
     while [ 1 ]
     do
-    	echo -n "$GREEN Project Absolute path: $NC";
+    	echo -n "$GREEN Project path: $NC";
     	read project_path;
     	if test -s "$project_path/ionic.project"; then
     		project_path=`realpath $project_path`;
