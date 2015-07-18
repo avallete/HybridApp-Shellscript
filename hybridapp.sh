@@ -36,7 +36,7 @@ docker_init(){
     	echo "$CYAN Launch Docker service$NC";
     	sudo systemctl start docker;
     	echo "$CYAN Build container image hybridapp from dockerhub$NC";
-    	docker build avallete/hybridapp ./
+    	docker build -t avallete/hybridapp ./
     fi
 }
 
@@ -98,8 +98,8 @@ then
 		docker_init;
 
 elif [ "$1" = "create" ]
-		hybridapp_create;
 then
+		hybridapp_create;
 elif [ "$1" = "dev" ]
 then
 	hybridapp_dev;
