@@ -36,7 +36,7 @@ docker_init(){
     	echo "$CYAN Launch Docker service$NC";
     	sudo systemctl start docker;
     	echo "$CYAN Pull container image hybridapp from dockerhub$NC";
-    	docker pull avallete/hybridapp
+    	docker build avallete/hybridapp ./
     fi
 }
 
