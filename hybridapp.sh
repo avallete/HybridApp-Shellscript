@@ -62,9 +62,9 @@ hybridapp_create(){
 
     # Create the new project
     docker run -ti --net host --privileged -v /dev/bus/usb:/dev/bus/usb -v ~/.gradle:/root/.gradle -v $PWD:/myApp:rw avallete/hybridapp ionic start $project_name $template;
-    cd $project_name;
     #Init the new project
-    docker run -ti --net host --privileged -v /dev/bus/usb:/dev/bus/usb -v ~/.gradle:/root/.gradle -v $PWD:/myApp:rw avallete/hybridapp npm install -g;
+    docker run -ti --net host --privileged -v /dev/bus/usb:/dev/bus/usb -v ~/.gradle:/root/.gradle -v "$PWD/$project_name":/myApp:rw avallete/hybridapp npm install;
+    docker_clean;
 }
 
 
