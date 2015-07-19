@@ -40,6 +40,23 @@ docker_init(){
     fi
 }
 
+#Check if xterm is installed
+xterm_init(){
+    if ! command_exists xterm; then
+    	echo -n "$RED Xterm is not installed. Would you install it ? (y/n) $NC";
+	read STDIN;
+	if [ "$STDIN" = "y" ]; then
+		sudo apt-get update;
+    		sudo apt-get install -y xterm;
+    		sudo apt-get clean;
+	else
+    		echo "$RED Script Abort. $NC";
+    		exit 2;
+	fi
+    fi
+}
+
+#Clean all docker images/process from the computer
 docker_clean(){
     sudo killall docker;
     sudo systemctl restart docker;
@@ -47,6 +64,7 @@ docker_clean(){
     sudo docker ps -a | grep 'ago' | awk '{print $1}' | xargs docker rm -f;
 }
 
+#Create and init a new ionic project
 hybridapp_create(){
     echo "$GREEN Create a new ionic project: $NC";
     while [ "$project_name" = "" ]
@@ -68,8 +86,9 @@ hybridapp_create(){
     docker_clean;
 }
 
-
+#Launch ionic serve and gulp watch for continue stream workflow.
 hybridapp_dev(){
+    xterm_init;
     while [ 1 ]
     do
     	echo -n "$GREEN Project path: $NC";
@@ -80,8 +99,11 @@ hybridapp_dev(){
     		xterm -e docker run -ti --privileged -v /dev/bus/usb:/dev/bus/usb -v ~/.gradle:/root/.gradle -v $project_path:/myApp:rw avallete/hybridapp gulp watch &
     		while [ "$end" != "q" ]
     		do
-    			echo "$RED Type q for quit$NC";
+    			echo "$RED Type q for quit or i for launch a shell in your container$NC";
     			read end;
+			if [ "$end" = "i" ]; then
+    				xterm -e docker run -ti --privileged -v /dev/bus/usb:/dev/bus/usb -v ~/.gradle:/root/.gradle -v $project_path:/myApp:rw avallete/hybridapp /bin/bash
+			fi
     		done
 		echo "$RED Clean all docker images$NC";
     		docker_clean;
@@ -92,6 +114,7 @@ hybridapp_dev(){
     done
 }
 
+#main script base
 if [ $# -eq 0 ]; then
 		echo "$RED Usage: hybridapp [init | create | dev]$NC";
 		exit 1;
@@ -104,7 +127,7 @@ then
 		hybridapp_create;
 elif [ "$1" = "dev" ]
 then
-	hybridapp_dev;
+		hybridapp_dev;
 else
 	echo "$RED Invalid argument $1. Usage: hybridapp [init | create | dev]$NC";
 	exit 1;
