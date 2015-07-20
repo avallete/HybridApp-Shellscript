@@ -24,19 +24,19 @@ docker_init(){
     	echo "$ORANGE Docker is not install. Would you install it ? \n(y/n)$NC";
     	read STDIN;
     	if [ "$STDIN" = "y" ]; then
-    			sudo apt-get update;
-    			sudo apt-get install -y docker;
-    			sudo apt-get install -y docker.io;
-    			sudo apt-get clean;
+    			apt-get update;
+    			apt-get install -y docker;
+    			apt-get install -y docker.io;
+    			apt-get clean;
     	else
     		echo "$RED Script Abort. $NC";
     		exit 2;
     	fi
     else
     	echo "$CYAN Launch Docker service$NC";
-    	sudo systemctl start docker;
+    	systemctl start docker;
     	echo "$CYAN Build container image hybridapp from dockerhub$NC";
-    	docker build -t avallete/hybridapp ./
+    	docker build --force-rm=true --no-cache=true -t avallete/hybridapp ./
     fi
 }
 
@@ -46,9 +46,9 @@ xterm_init(){
     	echo -n "$RED Xterm is not installed. Would you install it ? (y/n) $NC";
 	read STDIN;
 	if [ "$STDIN" = "y" ]; then
-		sudo apt-get update;
-    		sudo apt-get install -y xterm;
-    		sudo apt-get clean;
+		apt-get update;
+    		apt-get install -y xterm;
+    		apt-get clean;
 	else
     		echo "$RED Script Abort. $NC";
     		exit 2;
@@ -58,10 +58,10 @@ xterm_init(){
 
 #Clean all docker images/process from the computer
 docker_clean(){
-    sudo killall docker;
-    sudo systemctl restart docker;
-    sudo docker images -a | grep '<none>' | awk '{print $3}' | xargs docker rmi -f;
-    sudo docker ps -a | grep 'ago' | awk '{print $1}' | xargs docker rm -f;
+    killall docker;
+    systemctl restart docker;
+    docker images -a | grep '<none>' | awk '{print $3}' | xargs docker rmi -f;
+    docker ps -a | grep 'ago' | awk '{print $1}' | xargs docker rm -f;
 }
 
 #Create and init a new ionic project
@@ -79,9 +79,9 @@ hybridapp_create(){
     done
 
     # Create the new project
-    docker run -ti --net host --privileged -v /dev/bus/usb:/dev/bus/usb -v ~/.gradle:/root/.gradle -v $PWD:/myApp:rw avallete/hybridapp ionic start $project_name $template;
+    docker run --rm -ti --net host --privileged -v /dev/bus/usb:/dev/bus/usb -v ~/.gradle:/root/.gradle -v $PWD:/myApp:rw avallete/hybridapp ionic start $project_name $template;
     #Init the new project
-    docker run -ti --net host --privileged -v /dev/bus/usb:/dev/bus/usb -v ~/.gradle:/root/.gradle -v "$PWD/$project_name":/myApp:rw avallete/hybridapp npm install;
+    docker run --rm -ti --net host --privileged -v /dev/bus/usb:/dev/bus/usb -v ~/.gradle:/root/.gradle -v "$PWD/$project_name":/myApp:rw avallete/hybridapp npm install;
     sudo chown -R $USER:$USER "$PWD/$project_name"
     echo "$RED Clean all docker images$NC";
     docker_clean;
@@ -96,14 +96,14 @@ hybridapp_dev(){
     	read project_path;
     	if test -s "$project_path/ionic.project"; then
     		project_path=`realpath $project_path`;
-    		xterm -e docker run -ti --net host --privileged -v /dev/bus/usb:/dev/bus/usb -v ~/.gradle:/root/.gradle -v $project_path:/myApp:rw avallete/hybridapp ionic serve &
-    		xterm -e docker run -ti --privileged -v /dev/bus/usb:/dev/bus/usb -v ~/.gradle:/root/.gradle -v $project_path:/myApp:rw avallete/hybridapp gulp watch &
+    		xterm -e docker run --rm -ti --net host --privileged -v /dev/bus/usb:/dev/bus/usb -v ~/.gradle:/root/.gradle -v $project_path:/myApp:rw avallete/hybridapp ionic serve &
+    		xterm -e docker run --rm -ti --privileged -v /dev/bus/usb:/dev/bus/usb -v ~/.gradle:/root/.gradle -v $project_path:/myApp:rw avallete/hybridapp gulp watch &
     		while [ "$end" != "q" ]
     		do
     			echo "$RED Type q for quit or i for launch a shell in your container$NC";
     			read end;
 			if [ "$end" = "i" ]; then
-    				xterm -e docker run -ti --privileged -v /dev/bus/usb:/dev/bus/usb -v ~/.gradle:/root/.gradle -v $project_path:/myApp:rw avallete/hybridapp /bin/bash
+    				xterm -e docker run --rm -ti --privileged -v /dev/bus/usb:/dev/bus/usb -v ~/.gradle:/root/.gradle -v $project_path:/myApp:rw avallete/hybridapp /bin/bash
 			fi
     		done
 		echo "$RED Clean all docker images$NC";
