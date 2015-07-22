@@ -4,20 +4,15 @@ MAINTAINER avallete [at] student [dot] 42 [dot] fr
 # make sure the package repository is up to date and install node & git & ionic necessary
 RUN apt-get update &&  \
     apt-get install -y npm && ln -s /usr/bin/nodejs /usr/local/bin/node && \
-    apt-get upgrade -y && \ 
-    apt-get install -y git &&\
-    apt-get install -y curl &&\
-    apt-get clean
+    apt-get upgrade -y 
+
+RUN apt-get install -y git
+RUN apt-get install -y curl
+RUN apt-get clean
 
 #make sure node is lastest version
 RUN npm cache clean -f && npm install -g n && n stable
 
-RUN npm install -g cordova ionic gulp sass bower
-
-RUN ionic start myApp sidemenu
-
-EXPOSE 8100
-EXPOSE 35729
 
 #ANDROID (Uncomment next lines if you want dev on Andoid and download SDK (That can be long)) -->
 ENV DEBIAN_FRONTEND noninteractive
@@ -33,18 +28,17 @@ COPY tools /opt/tools
 ENV PATH ${PATH}:/opt/tools
 RUN echo ANDROID_HOME="${ANDROID_HOME}" >> /etc/environment
 RUN ["/opt/tools/android-accept-licenses.sh", "android update sdk --all --no-ui --filter platform-tools,tools,build-tools-22.0.1,android-22,extra-android-support,extra-android-m2repository,extra-google-m2repositor"]
-# <-----------------------------------------------
+#<------------------
 
-#  add sys-img-armeabi-v7a-android-22 for android emulator
-#RUN echo "no" | android create avd \
-#                --force \
-#                --device "Nexus 5" \
-#                --name test \
-#                --target android-22 \
-#                --abi armeabi-v7a \
-#                --skin WVGA800 \
-#                --sdcard 512M
-# don't work for moment.
+EXPOSE 8100
+EXPOSE 35729
 
+RUN npm install -g bower
+RUN npm install -g cordova
+RUN npm install -g ionic
+RUN npm install -g gulp 
+RUN npm install -g grunt
+RUN chmod -R g+rwx /root
 WORKDIR myApp
+RUN chmod -R g+rwx /myApp
 CMD ["ionic", "serve"]
