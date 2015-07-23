@@ -1,59 +1,84 @@
-# HybridApp-Shellscript
-A little shell script for create/devellop hybrids app with ionic/cordova/sass/ in docker more easily.
-(Test under Ubuntu 14.0)
+# Overview
+This is a simple docker for dev with ionic/gulp/grant.
+And build and run on Android (optionnal)
 
 # Installation guide
 
 ## Android
-
-First of all, if you want build/dev on Android and add the SDK in your docker.
-Uncomment the "ANDROID" part in the Dockerfile.
+If you don't want build on Android or if you want a lighter docker image, comment
+this section in Dockerfile.
 
 ## Installation
 
+Be sure you have docker installed on your computer.
 Clone the project and launch:
 ```
   cd {clone repo}
-  sudo ./hybridapp.sh init
+  docker build -t {whatyouwant} ./
+```
+### Little tips:
+By default, doker images goes on /var/lib/docker. If you have a little OS-drive (like SSD).
+You can use symbolic link and redirect the docker storage location.
+```
+  ln -s /your/path /var/lib/docker
 ```
 
-And follow the script instruction. He will install all necessary stuff you need for create and devellop your project.
+One more thing, with ionic, you need use long command for launch your docker.
+I advise you: use alias
 
-# How that work ?!
-
-## Create a new project
-
-Well, simply launch:
 ```
-  sudo ./hybridapp.sh create
+  alias dockerun="docker run --rm --net host -ti --privileged -v /dev/bus/usb:/dev/bus/usb -v ~/.gradle:/root/.gradle -v \$PWD:/myApp:rw"
+  alias dockerclr="docker ps -a | grep Exited | awk {'print $1'} | xargs docker rm"
+  alias dockerclri="docker images -a | grep none | awk '{print $3}' | xargs docker rmi"
 ```
 
-## Dev on an existing project
+Firs alias provide you a easy way for dev an ionic project like that:
 
-You need to launch:
 ```
-  sudo ./hybridapp.sh dev
+  cd {project_folder}
+  dockerun {imagename} /bin/bash
+  ionic serve
 ```
-And follow the script instruction. You can give a relative or absolute path when he ask for.
-He will open you 2 new term. One with sass watch. Other with ionic serve.
-For quit cleanly make sure you quit the project by type "q" in the script.
-But the script destroy all docker running container at the end of session so be careful with it if you have another running container.
 
-# Example of use
+The others aliases just some command for clean your unused container.
+Think to check them regulary with:
 ```
-  git clone https://github.com/avallete/HybridApp-Shellscript.git appDev
-  cd appDev
-  sudo ./hybridapp.sh init
-  sudo ./hybridapp.sh create
-  {
-    Name of Project: test
-    Template: tabs
-  }
-  sudo ./hybridapp.sh dev
-  {
-    Path of Project: test | ./test | /absolute/path/test
-    (In the ionic serve terminal. Choose your connexion mode (no localhost if you want test with your smartphone))
-    (In your browser enter the "Running dev Server" adress)
-    (If you want access to shell of your docker type i, if you want quit dev mode type q)
-  }
+  docker images -a
+  docker ps -a
+```
+
+Start by remove unused container listed in `docker ps -a` with:
+```
+  docker rm {container id}
+```
+
+And do the same for images:
+```
+  docker images -a
+  docker rmi {image id}
+```
+
+# How to run a new project:
+```
+  mkdir new
+  cd new
+  dockerun {imagename} ionic start
+  dockerun {imagename} npm install
+  sudo chown -R new (for allow you to edit files)
+```
+
+## How to build for android
+```
+  dockerun {imagename} ionic platform add android
+  dockerun {imagename} ionic build android
+  (if you have a android device plugin with debugmode enabled you can do)
+  dockerun {imagename} ionic run
+```
+
+## How to test on browser
+Open two terminal (one for sass and other for ionic serve)
+And launch:
+```
+  dockerun {imagename} gulp watch
+  dockerun {imagename} ionic serve
 ```
