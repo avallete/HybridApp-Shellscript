@@ -2,21 +2,7 @@
 This is a simple docker for dev with ionic/gulp/grant.
 And build and run on Android (optionnal)
 
-# Installation guide
-
-## Android
-If you don't want build on Android or if you want a lighter docker image, comment
-this section in Dockerfile.
-
-## Installation
-
-Be sure you have docker installed on your computer.
-Clone the project and launch:
-```
-  cd {clone repo}
-  docker build -t {whatyouwant} ./
-```
-### Little tips:
+# Little Docker tips:
 By default, doker images goes on /var/lib/docker. If you have a little OS-drive (like SSD).
 You can use symbolic link and redirect the docker storage location.
 ```
@@ -58,12 +44,28 @@ And do the same for images:
   docker rmi {image id}
 ```
 
+# Installation guide
+
+## Android
+If you don't want build on Android or if you want a lighter docker image, comment
+this section in Dockerfile.
+
+## Installation
+
+Be sure you have docker installed on your computer.
+Clone the project and launch:
+```
+  cd {clone repo}
+  docker build -t {whatyouwant} ./
+```
+
 # How to run a new project:
 ```
   mkdir new
   cd new
   dockerun {imagename} ionic start
   dockerun {imagename} npm install
+  dockerun {imagename} ionic setup sass
   sudo chown -R new (for allow you to edit files)
 ```
 
@@ -76,9 +78,8 @@ And do the same for images:
 ```
 
 ## How to test on browser
-Open two terminal (one for sass and other for ionic serve)
+One terminal with project already init
 And launch:
 ```
-  dockerun {imagename} gulp watch
   dockerun {imagename} ionic serve
 ```
